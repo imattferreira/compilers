@@ -1,0 +1,58 @@
+digraph lexer_automaton {
+    rankdir=LR;
+
+    // Estados
+    node [shape = circle];
+    q0 [label = "q0", shape = doublecircle]; // Estado inicial
+    q1 [label = "q1"];
+    q2 [label = "q2", shape = doublecircle];
+    q3 [label = "q3"];
+    q4 [label = "q4", shape = doublecircle];
+    q5 [label = "q5", shape = doublecircle];
+    q6 [label = "q6"];
+    q7 [label = "q7", shape = doublecircle];
+    q8 [label = "q8", shape = doublecircle];
+    q9 [label = "q9", shape = doublecircle];
+    q10 [label = "q10", shape = doublecircle];
+
+    // Estado inicial
+    node [shape = none, label = ""];
+    start -> q0;
+
+    // Transições
+    q0 -> q0 [label = "espaço"];
+    q0 -> q1 [label = "dígito"];
+    q0 -> q2 [label = "+,-,*,/"];
+    q0 -> q3 [label = "letra"];
+    q0 -> q4 [label = ">,<,=,!"];
+    q0 -> q5 [label = "acentuação"];
+    q0 -> q6 [label = "aspas"];
+    q0 -> q7 [label = "++"];
+    q0 -> q8 [label = "--"];
+    q0 -> q9 [label = "&,|"];
+
+    q1 -> q1 [label = "dígito"];
+    q1 -> q10 [label = "ponto (.)"];
+    q1 -> q0 [label = "NUMERO_INTEIRO"];
+
+    q2 -> q0 [label = "OPERADOR_ARITMETICO"];
+
+    q3 -> q3 [label = "letra,dígito"];
+    q3 -> q0 [label = "IDENTIFICADOR ou PALAVRA_RESERVADA"];
+
+    q4 -> q0 [label = "OPERADOR_RELACIONAL ou ATRIBUICAO"];
+
+    q5 -> q0 [label = "PONTUAÇÃO"];
+
+    q6 -> q6 [label = "qualquer caractere"];
+    q6 -> q0 [label = "STRING"];
+
+    q7 -> q0 [label = "INCREMENTO"];
+
+    q8 -> q0 [label = "DECREMENTO"];
+
+    q9 -> q0 [label = "&,|\nOPERADOR_LOGICO"];
+
+    q10 -> q10 [label = "dígito"];
+    q10 -> q0 [label = "NUMERO_REAL"];
+}
