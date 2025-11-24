@@ -52,6 +52,34 @@ private:
   string name;
 };
 
+// Nó para acesso a arrays
+class ArrayAccessNode : public ExpressionNode
+{
+public:
+  ArrayAccessNode(const string &name, ExpressionNode *index)
+      : name(name), index(index) {}
+  ~ArrayAccessNode();
+  string toString(int indent = 0) const override;
+
+private:
+  string name;
+  ExpressionNode *index;
+};
+
+// Nó para operações unárias
+class UnaryOpNode : public ExpressionNode
+{
+public:
+  UnaryOpNode(const string &op, ExpressionNode *operand)
+      : op(op), operand(operand) {}
+  ~UnaryOpNode();
+  string toString(int indent = 0) const override;
+
+private:
+  string op;
+  ExpressionNode *operand;
+};
+
 // Nó para operações binárias
 class BinaryOpNode : public ExpressionNode
 {

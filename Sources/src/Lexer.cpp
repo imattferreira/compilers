@@ -44,7 +44,7 @@ bool Lexer::isUnderline(char c)
 
 bool Lexer::isOperadorRelacional(char c)
 {
-  return c == '>' || c == '<' || c == '=' || c == '!';
+  return c == '>' || c == '<' || c == '=';
 }
 
 bool Lexer::isOperadorLogico(char c)
@@ -154,6 +154,12 @@ void Lexer::q0()
     estado_atual = 3;
     i++;
   }
+  else if (c == '!')
+  {
+    lexema = c;
+    estado_atual = 9;
+    i++;
+  }
   else if (isOperadorRelacional(c))
   {
     lexema = c;
@@ -206,6 +212,7 @@ void Lexer::q1()
     tokens.push_back(Token(TipoDeToken::NUMERO_INTEIRO, lexema));
     lexema = "";
     estado_atual = 0;
+    // Não avança i aqui - deixa o q0 processar o caractere atual
   }
 }
 
@@ -220,7 +227,7 @@ void Lexer::q2()
 // Estado q3: Reconhece identificadores e palavras reservadas
 void Lexer::q3()
 {
-  const set<string> palavrasReservadas = {"int", "main", "if", "else", "while", "for", "do", "return"};
+  const set<string> palavrasReservadas = {"int", "double", "string", "main", "if", "else", "while", "for", "do", "return"};
 
   if (i >= codigo.size())
   {
@@ -369,7 +376,7 @@ void Lexer::q8()
   estado_atual = 0;
 }
 
-// Estado q9: Reconhece operadores lógicos (&&, ||)
+// Estado q9: Reconhece operadores lógicos (&&, ||) e negação (!)
 void Lexer::q9()
 {
   if (i < codigo.size() && ((lexema == "&" && codigo[i] == '&') ||
@@ -377,17 +384,27 @@ void Lexer::q9()
   {
     lexema.push_back(codigo[i]);
     i++;
+    tokens.push_back(Token(TipoDeToken::OPERADOR_LOGICO, lexema));
   }
   else if (lexema == "!")
   {
-    // O caractere '!' já é reconhecido no estado 0 e tratado aqui.
+    // Verifica se é != (operador relacional) ou apenas ! (negação lógica)
+    if (i < codigo.size() && codigo[i] == '=')
+    {
+      lexema.push_back(codigo[i]);
+      i++;
+      tokens.push_back(Token(TipoDeToken::OPERADOR_RELACIONAL, lexema));
+    }
+    else
+    {
+      tokens.push_back(Token(TipoDeToken::OPERADOR_LOGICO, lexema));
+    }
   }
   else
   {
     throw runtime_error("Operador logico invalido");
   }
 
-  tokens.push_back(Token(TipoDeToken::OPERADOR_LOGICO, lexema));
   lexema = "";
   estado_atual = 0;
 }

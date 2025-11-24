@@ -15,6 +15,35 @@ string IdentifierNode::toString(int indent) const
   return string(indent, ' ') + "Identifier(" + name + ")";
 }
 
+// ArrayAccessNode
+ArrayAccessNode::~ArrayAccessNode()
+{
+  delete index;
+}
+
+string ArrayAccessNode::toString(int indent) const
+{
+  stringstream ss;
+  ss << string(indent, ' ') << "ArrayAccess(" << name << "[" << endl;
+  ss << index->toString(indent + 2) << endl;
+  ss << string(indent, ' ') << "])";
+  return ss.str();
+}
+
+// UnaryOpNode
+UnaryOpNode::~UnaryOpNode()
+{
+  delete operand;
+}
+
+string UnaryOpNode::toString(int indent) const
+{
+  stringstream ss;
+  ss << string(indent, ' ') << "UnaryOp(" << op << ")" << endl;
+  ss << operand->toString(indent + 2);
+  return ss.str();
+}
+
 // BinaryOpNode
 BinaryOpNode::~BinaryOpNode()
 {
