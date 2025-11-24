@@ -9,6 +9,7 @@ using namespace std;
 class Token
 {
 public:
+    Token() : tipo(TipoDeToken::DESCONHECIDO), lexema("") {}
     Token(TipoDeToken tipo, string lexema) : tipo(tipo), lexema(lexema) {}
 
     TipoDeToken getTipo() const {
