@@ -27,7 +27,6 @@ private:
   int posicao_atual;
   Token token_atual;
 
-  // Métodos auxiliares
   void avancar();
   void erro(string msg);
 

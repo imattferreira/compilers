@@ -3,19 +3,16 @@
 
 using namespace std;
 
-// LiteralNode
 string LiteralNode::toString(int indent) const
 {
   return string(indent, ' ') + "Literal(" + value + ")";
 }
 
-// IdentifierNode
 string IdentifierNode::toString(int indent) const
 {
   return string(indent, ' ') + "Identifier(" + name + ")";
 }
 
-// ArrayAccessNode
 ArrayAccessNode::~ArrayAccessNode()
 {
   delete index;
@@ -30,7 +27,6 @@ string ArrayAccessNode::toString(int indent) const
   return ss.str();
 }
 
-// UnaryOpNode
 UnaryOpNode::~UnaryOpNode()
 {
   delete operand;
@@ -44,7 +40,6 @@ string UnaryOpNode::toString(int indent) const
   return ss.str();
 }
 
-// BinaryOpNode
 BinaryOpNode::~BinaryOpNode()
 {
   delete left;
@@ -60,7 +55,6 @@ string BinaryOpNode::toString(int indent) const
   return ss.str();
 }
 
-// FunctionCallNode
 FunctionCallNode::~FunctionCallNode()
 {
   for (auto arg : args)
@@ -80,7 +74,6 @@ string FunctionCallNode::toString(int indent) const
   return ss.str();
 }
 
-// BlockNode
 BlockNode::~BlockNode()
 {
   for (auto stmt : statements)
@@ -101,7 +94,6 @@ string BlockNode::toString(int indent) const
   return ss.str();
 }
 
-// VariableDeclarationNode
 VariableDeclarationNode::~VariableDeclarationNode()
 {
   if (initialValue)
@@ -122,7 +114,6 @@ string VariableDeclarationNode::toString(int indent) const
   return ss.str();
 }
 
-// AssignmentNode
 AssignmentNode::~AssignmentNode()
 {
   delete value;
@@ -136,7 +127,6 @@ string AssignmentNode::toString(int indent) const
   return ss.str();
 }
 
-// IfStatementNode
 IfStatementNode::~IfStatementNode()
 {
   delete condition;
@@ -163,7 +153,6 @@ string IfStatementNode::toString(int indent) const
   return ss.str();
 }
 
-// WhileStatementNode
 WhileStatementNode::~WhileStatementNode()
 {
   delete condition;
@@ -181,7 +170,6 @@ string WhileStatementNode::toString(int indent) const
   return ss.str();
 }
 
-// ForStatementNode
 ForStatementNode::~ForStatementNode()
 {
   if (init)
@@ -223,7 +211,6 @@ string ForStatementNode::toString(int indent) const
   return ss.str();
 }
 
-// ReturnStatementNode
 ReturnStatementNode::~ReturnStatementNode()
 {
   if (value)
@@ -244,7 +231,6 @@ string ReturnStatementNode::toString(int indent) const
   return ss.str();
 }
 
-// ExpressionStatementNode
 ExpressionStatementNode::~ExpressionStatementNode()
 {
   delete expr;
@@ -255,7 +241,6 @@ string ExpressionStatementNode::toString(int indent) const
   return expr->toString(indent);
 }
 
-// FunctionNode
 FunctionNode::~FunctionNode()
 {
   for (auto param : params)
@@ -282,7 +267,6 @@ string FunctionNode::toString(int indent) const
   return ss.str();
 }
 
-// ProgramNode
 ProgramNode::~ProgramNode()
 {
   for (auto func : functions)

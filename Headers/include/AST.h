@@ -7,7 +7,6 @@
 
 using namespace std;
 
-// Classe base abstrata para todos os nós da AST
 class ASTNode
 {
 public:
@@ -15,21 +14,18 @@ public:
   virtual string toString(int indent = 0) const = 0;
 };
 
-// Classe base para expressões
 class ExpressionNode : public ASTNode
 {
 public:
   virtual ~ExpressionNode() = default;
 };
 
-// Classe base para statements
 class StatementNode : public ASTNode
 {
 public:
   virtual ~StatementNode() = default;
 };
 
-// Nó para literais (números inteiros)
 class LiteralNode : public ExpressionNode
 {
 public:
@@ -40,7 +36,6 @@ private:
   string value;
 };
 
-// Nó para identificadores
 class IdentifierNode : public ExpressionNode
 {
 public:
@@ -52,7 +47,6 @@ private:
   string name;
 };
 
-// Nó para acesso a arrays
 class ArrayAccessNode : public ExpressionNode
 {
 public:
@@ -66,7 +60,6 @@ private:
   ExpressionNode *index;
 };
 
-// Nó para operações unárias
 class UnaryOpNode : public ExpressionNode
 {
 public:
@@ -80,7 +73,6 @@ private:
   ExpressionNode *operand;
 };
 
-// Nó para operações binárias
 class BinaryOpNode : public ExpressionNode
 {
 public:
@@ -95,7 +87,6 @@ private:
   ExpressionNode *right;
 };
 
-// Nó para chamadas de função
 class FunctionCallNode : public ExpressionNode
 {
 public:
@@ -109,7 +100,6 @@ private:
   vector<ExpressionNode *> args;
 };
 
-// Nó para blocos de código
 class BlockNode : public StatementNode
 {
 public:
@@ -122,7 +112,6 @@ private:
   vector<StatementNode *> statements;
 };
 
-// Nó para declarações de variáveis
 class VariableDeclarationNode : public StatementNode
 {
 public:
@@ -137,7 +126,6 @@ private:
   ExpressionNode *initialValue;
 };
 
-// Nó para atribuições
 class AssignmentNode : public StatementNode
 {
 public:
@@ -151,7 +139,6 @@ private:
   ExpressionNode *value;
 };
 
-// Nó para if statement
 class IfStatementNode : public StatementNode
 {
 public:
@@ -166,7 +153,6 @@ private:
   BlockNode *elseBlock;
 };
 
-// Nó para while statement
 class WhileStatementNode : public StatementNode
 {
 public:
@@ -180,7 +166,6 @@ private:
   BlockNode *body;
 };
 
-// Nó para for statement
 class ForStatementNode : public StatementNode
 {
 public:
@@ -196,7 +181,6 @@ private:
   BlockNode *body;
 };
 
-// Nó para return statement
 class ReturnStatementNode : public StatementNode
 {
 public:
@@ -208,7 +192,6 @@ private:
   ExpressionNode *value;
 };
 
-// Nó para expression statement (expressão seguida de ;)
 class ExpressionStatementNode : public StatementNode
 {
 public:
@@ -220,7 +203,6 @@ private:
   ExpressionNode *expr;
 };
 
-// Nó para parâmetros de função
 class ParameterNode
 {
 public:
@@ -233,7 +215,6 @@ private:
   string name;
 };
 
-// Nó para definições de funções
 class FunctionNode : public ASTNode
 {
 public:
@@ -249,7 +230,6 @@ private:
   BlockNode *body;
 };
 
-// Nó raiz do programa (contém múltiplas funções)
 class ProgramNode : public ASTNode
 {
 public:

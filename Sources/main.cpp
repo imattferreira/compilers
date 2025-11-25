@@ -66,7 +66,7 @@ void testarProgramaCompleto()
 void testarProgramaCompleto2()
 {
   cout << "\n=== 5. Teste: Programa Completo 2 ===" << endl;
-  string codigo = "int main() { double _neymar_10 = 9.75, messi = 0; string texto = \"santos\"; if (xxx >= r9) while (teste == 10 || teste2 != 20 && !sair) a[75] = (123.456 - 5) / 2; i++; return 0; }";
+  string codigo = "int main() { double _neymar_10 = 9.75, messi = 0; string texto = \"santos\"; if (xxx >= r9) while (teste == 10 || teste2 != 20 && !sair) a[75] = (123.456 - 5) / 2; i++; return 0; } ";
 
   mostrarAst(codigo);
 }

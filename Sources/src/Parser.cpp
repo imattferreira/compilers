@@ -70,19 +70,18 @@ ProgramNode *Parser::parseProgram()
       int saved_pos = posicao_atual;
       Token saved_token = token_atual;
 
-      avancar(); // avança do tipo
+      avancar();
       bool isFunction = false;
       if (token_atual.getTipo() == TipoDeToken::IDENTIFICADOR ||
           token_atual.getTipo() == TipoDeToken::PALAVRA_RESERVADA)
       {
-        avancar(); // avança do identificador
+        avancar();
         if (token_atual.getTipo() == TipoDeToken::ABRE_PARENTESES)
         {
           isFunction = true;
         }
       }
 
-      // Restaura posição
       posicao_atual = saved_pos;
       token_atual = saved_token;
 
@@ -114,7 +113,31 @@ ProgramNode *Parser::parseProgram()
     }
     else
     {
-      break;
+
+      vector<StatementNode *> statements;
+      while (token_atual.getTipo() != TipoDeToken::DESCONHECIDO)
+      {
+        if (isTipo(token_atual))
+        {
+          // Se encontrar um tipo, volta para o processamento normal
+          break;
+        }
+        else
+        {
+          // Parseia como statement (pode ser expressão, atribuição, etc.)
+          statements.push_back(parseStatement());
+        }
+      }
+      if (!statements.empty())
+      {
+        BlockNode *body = new BlockNode(statements);
+        FunctionNode *wrapper = new FunctionNode("void", "__global__", vector<ParameterNode *>(), body);
+        functions.push_back(wrapper);
+      }
+      if (!isTipo(token_atual))
+      {
+        break;
+      }
     }
   }
 
@@ -250,8 +273,6 @@ StatementNode *Parser::parseStatement()
   }
   else if (token_atual.getTipo() == TipoDeToken::IDENTIFICADOR)
   {
-    // Pode ser assignment, array assignment ou expression statement
-    // Fazemos lookahead para determinar
     Token peek = token_atual;
     int saved_pos = posicao_atual;
 
@@ -290,14 +311,12 @@ StatementNode *Parser::parseStatement()
     }
     else if (token_atual.getTipo() == TipoDeToken::OPERADOR_ATRIBUICAO)
     {
-      // É assignment
       posicao_atual = saved_pos;
       token_atual = peek;
       return parseAssignment();
     }
     else
     {
-      // É expression statement (pode ser identifier, function call, etc.)
       posicao_atual = saved_pos;
       token_atual = peek;
       ExpressionNode *expr = parseExpression();
@@ -386,6 +405,7 @@ StatementNode *Parser::parseAssignment()
   if (token_atual.getTipo() == TipoDeToken::ABRE_COLCHETES)
   {
     avancar();
+    parseExpression(); // Parseia a expressão do índice
     if (token_atual.getTipo() != TipoDeToken::FECHA_COLCHETES)
     {
       erro("Esperado ']' apos indice do array");
@@ -407,9 +427,6 @@ StatementNode *Parser::parseAssignment()
   }
   avancar();
 
-  // Se for atribuição a array, usa ArrayAccessNode como nome
-  // Por enquanto, vamos usar o nome simples (AssignmentNode não suporta arrays ainda)
-  // TODO: Modificar AssignmentNode para suportar arrays
   return new AssignmentNode(name, value);
 }
 
@@ -532,21 +549,17 @@ StatementNode *Parser::parseFor()
     if (isTipo(token_atual))
     {
       init = parseVariableDeclaration();
-      // parseVariableDeclaration já consome o ';'
     }
     else if (token_atual.getTipo() == TipoDeToken::IDENTIFICADOR)
     {
-      // Pode ser atribuição ou expressão
       int saved_pos = posicao_atual;
       Token saved_token = token_atual;
       avancar();
       if (token_atual.getTipo() == TipoDeToken::OPERADOR_ATRIBUICAO)
       {
-        // É atribuição
         posicao_atual = saved_pos;
         token_atual = saved_token;
         init = parseAssignment();
-        // parseAssignment já consome o ';'
       }
       else
       {
@@ -588,13 +601,9 @@ StatementNode *Parser::parseFor()
   }
   avancar();
 
-  // Update (pode ser atribuição ou expressão)
-  // No contexto do for, atribuições são permitidas como expressões
   ExpressionNode *update = nullptr;
   if (token_atual.getTipo() != TipoDeToken::FECHA_PARENTESES)
   {
-    // Parseia como expressão, mas permite atribuições
-    // Fazemos lookahead para detectar atribuições
     if (token_atual.getTipo() == TipoDeToken::IDENTIFICADOR)
     {
       int saved_pos = posicao_atual;
@@ -602,16 +611,12 @@ StatementNode *Parser::parseFor()
       avancar();
       if (token_atual.getTipo() == TipoDeToken::OPERADOR_ATRIBUICAO)
       {
-        // É atribuição - parseamos como expressão binária especial
-        // Na verdade, vamos criar um BinaryOpNode com operador "="
         posicao_atual = saved_pos;
         token_atual = saved_token;
         string name = token_atual.getLexema();
-        avancar(); // consome identificador
-        avancar(); // consome "="
+        avancar();
+        avancar();
         ExpressionNode *value = parseExpression();
-        // Criamos um BinaryOpNode especial para atribuição
-        // (isso não é semanticamente correto, mas funciona para a AST)
         update = new BinaryOpNode(new IdentifierNode(name), "=", value);
       }
       else
@@ -639,7 +644,6 @@ StatementNode *Parser::parseFor()
 
 StatementNode *Parser::parseReturn()
 {
-  // "return" Expression? ";"
   if (!isPalavraReservada("return"))
   {
     erro("Esperado 'return'");
@@ -729,8 +733,22 @@ ExpressionNode *Parser::TLinha(ExpressionNode *left)
 // F -> IDENTIFICADOR | NUMERO_INTEIRO | NUMERO_REAL | STRING | "(" Expression ")" | FunctionCall | UnaryOp
 ExpressionNode *Parser::F()
 {
-  // Operadores unários
+  // Operadores unários (pré-fixos)
   if (token_atual.getTipo() == TipoDeToken::OPERADOR_LOGICO && token_atual.getLexema() == "!")
+  {
+    string op = token_atual.getLexema();
+    avancar();
+    ExpressionNode *operand = F();
+    return new UnaryOpNode(op, operand);
+  }
+  else if (token_atual.getTipo() == TipoDeToken::INCREMENTO)
+  {
+    string op = token_atual.getLexema();
+    avancar();
+    ExpressionNode *operand = F();
+    return new UnaryOpNode(op, operand);
+  }
+  else if (token_atual.getTipo() == TipoDeToken::DECREMENTO)
   {
     string op = token_atual.getLexema();
     avancar();
@@ -793,7 +811,21 @@ ExpressionNode *Parser::F()
     }
     else
     {
-      return new IdentifierNode(name);
+      // Verifica se há operadores pós-fixos (++ ou --)
+      if (token_atual.getTipo() == TipoDeToken::INCREMENTO)
+      {
+        avancar();
+        return new UnaryOpNode("++", new IdentifierNode(name));
+      }
+      else if (token_atual.getTipo() == TipoDeToken::DECREMENTO)
+      {
+        avancar();
+        return new UnaryOpNode("--", new IdentifierNode(name));
+      }
+      else
+      {
+        return new IdentifierNode(name);
+      }
     }
   }
   else if (token_atual.getTipo() == TipoDeToken::NUMERO_INTEIRO ||
@@ -812,6 +844,6 @@ ExpressionNode *Parser::F()
   else
   {
     erro("Token inesperado em F");
-    return nullptr; // Nunca alcançado
+    return nullptr;
   }
 }

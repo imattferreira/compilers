@@ -212,7 +212,6 @@ void Lexer::q1()
     tokens.push_back(Token(TipoDeToken::NUMERO_INTEIRO, lexema));
     lexema = "";
     estado_atual = 0;
-    // Não avança i aqui - deixa o q0 processar o caractere atual
   }
 }
 
